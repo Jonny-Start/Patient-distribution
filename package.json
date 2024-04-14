@@ -1,0 +1,17 @@
+{
+  "name": "patient-distribution",
+  "version": "1.0.0",
+  "description": "Algoritmo para la distribución de pacientes a auxiliares de enfermería.",
+  "main": "index.js",
+  "scripts": {
+    "build": "node index.js"
+  },
+  "keywords": [],
+  "author": "jonnyalejandro.ca0910@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parser": "^3.0.0",
+    "exceljs": "^4.4.0",
+    "fs": "^0.0.1-security"
+  }
+}
