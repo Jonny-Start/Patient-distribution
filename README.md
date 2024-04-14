@@ -41,4 +41,5 @@ Este proyecto es propiedad privada y no está disponible públicamente bajo una 
 
 Para obtener más información sobre este proyecto, ponte en contacto con el propietario a través de [correo electrónico](jonnyalejandro.ca0910@gmail.com) o por otros medios de comunicación adecuados.
 ````markdown
+jonnyalejandro.ca0910@gmail.com
 ````
