@@ -1,4 +1,117 @@
 {
-  "file_name": "",
-  "AUX": [{}]
+  "file_name": "RptAppointmentListAppointment.csv",
+  "AUX": [
+    {
+      "name": "NATALIA ESPINOSA",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": true,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "ALEJANDRA RODRIQUEZ",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": true,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "LORENA CHAVES",
+      "active": true,
+      "AIC": true,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "CAROL BOHORQUEZ",
+      "active": true,
+      "AIC": true,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "ERIKA CUBILLOS",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "IRENE ACOSTA",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "LIZETH ARIZA",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "PEDRO PASTRANA",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "TANIA CAMARGO",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "ANGIE DIAZ",
+      "active": false,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "MARCELA CUY",
+      "active": false,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "CATERINE ACERO",
+      "active": false,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "ERIKA MALDONADO",
+      "active": false,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    },
+    {
+      "name": "YAMILETH DELGADO",
+      "active": false,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": []
+    }
+  ]
 }

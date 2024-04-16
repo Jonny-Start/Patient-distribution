@@ -1,6 +1,7 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const createExcel = require("./create_excel");
+const { convertDateToISOFormat } = require("./utils");
 
 const results = [];
 const { file_name, AUX } = require("./config.json");
@@ -45,7 +46,7 @@ fs.createReadStream(file_name)
     const headersAssisted = Object.keys(listPatients[0]);
     // Obtener los datos
     const dataAssisted = listPatients.slice();
-    await createExcel(
+    createExcel(
       "PACIENTES ASISTIDOS",
       "PACIENTES_ASISTIDOS",
       headersAssisted,
@@ -183,18 +184,66 @@ fs.createReadStream(file_name)
       );
     });
 
-    // Asignar los pacientes restantes de medicina general
-    medGeneralPatients.forEach((patient) => {
-      active_doctors.forEach((aux) => {
+    active_doctors.forEach((aux) => {
+      let changeAuxGeneral = false;
+      if (!changeAuxGeneral && aux.total_patients < patients_per_doctor) {
+        medGeneralPatients.forEach((patient) => {
+          if (!changeAuxGeneral && patient.AUXILIAR == "") {
+            patient.AUXILIAR = aux.name.toUpperCase();
+            aux.patients.push(patient);
+            aux.total_patients++;
+            changeAuxGeneral = true;
+          }
+        });
+      }
+    });
+
+    /**
+     * Filtrar por CALI
+     */
+
+    // Calcular la cantidad de pacientes de CALI
+    let caliPatients = listPatients.filter(
+      (patient) =>
+        patient.Sede.toLowerCase().includes("cali") && patient.AUXILIAR == ""
+    );
+
+    // calcular la cantidad máxima de pacientes de CALI por auxiliar
+    const maxCaliPatientsPerAux = Math.floor(
+      caliPatients.length / active_doctors.length
+    );
+
+    active_doctors.forEach((aux) => {
+      let totalAsignedCaliPatients = 0;
+      caliPatients.forEach((patient) => {
         if (
+          totalAsignedCaliPatients < maxCaliPatientsPerAux &&
           patient.AUXILIAR == "" &&
           aux.total_patients < patients_per_doctor
         ) {
           patient.AUXILIAR = aux.name.toUpperCase();
           aux.patients.push(patient);
           aux.total_patients++;
+          totalAsignedCaliPatients++;
         }
       });
+      // Eliminar los pacientes asignados de la lista de pacientes de CALI
+      caliPatients = caliPatients.filter((patient) => patient.AUXILIAR == "");
+    });
+
+    // Asignar los pacientes restantes de CALI
+    active_doctors.forEach((aux) => {
+      let changeAux = false;
+      if (!changeAux && aux.total_patients < patients_per_doctor) {
+        caliPatients.forEach((patient) => {
+          if (!changeAux && patient.AUXILIAR == "") {
+            patient.AUXILIAR = aux.name.toUpperCase();
+            aux.patients.push(patient);
+            aux.total_patients++;
+            changeAux = true;
+          }
+        });
+      }
     });
 
     /**
@@ -271,9 +320,9 @@ fs.createReadStream(file_name)
         "# IDENTIFICACIÓN": patient.Documento,
         "NOMBRES Y APELLIDOS DEL PACIENTE": patient.Paciente,
         "TIPO DE EXAMEN PRIMERA VEZ CONTROL": patient.Tipo_de_examen1,
-        "FECHA DE CITA DEL USUARIO (AAAA-MM-DD)": new Date(patient.Fecha_cita)
-          .toISOString()
-          .split("T")[0],
+        "FECHA DE CITA DEL USUARIO (AAAA-MM-DD)": convertDateToISOFormat(
+          patient.Fecha_cita
+        ),
         "FECHA DISTRIBUCIÓN (AAAA-MM-DD)": formattedDate,
         ASEGURADOR: patient.Entidad,
         "UNIDAD DE SALUD": patient.Sede,
@@ -283,12 +332,47 @@ fs.createReadStream(file_name)
       };
     });
 
-    await createExcel(
+    createExcel(
       "DIST. PACIENTES",
       "DIST_PACIENTES",
       headersFinished,
       dataFinished
     );
 
-    // console.log(listPatients);
+    // validar si hay pacientes no asignados
+    if (notAsignedPatients.length > 0) {
+      const headersNotAsigned = [
+        "# IDENTIFICACIÓN",
+        "NOMBRES Y APELLIDOS DEL PACIENTE",
+        "TIPO DE EXAMEN PRIMERA VEZ CONTROL",
+        "FECHA DE CITA DEL USUARIO (AAAA-MM-DD)",
+        "ASEGURADOR",
+        "UNIDAD DE SALUD",
+        "ASISTIÓ NO ASISTIÓ A CONSULTA",
+      ];
+
+      const dataNotAsigned = notAsignedPatients.map((patient) => {
+        return {
+          "# IDENTIFICACIÓN": patient.Documento,
+          "NOMBRES Y APELLIDOS DEL PACIENTE": patient.Paciente,
+          "TIPO DE EXAMEN PRIMERA VEZ CONTROL": patient.Tipo_de_examen1,
+          "FECHA DE CITA DEL USUARIO (AAAA-MM-DD)": convertDateToISOFormat(
+            patient.Fecha_cita
+          ),
+          ASEGURADOR: patient.Entidad,
+          "UNIDAD DE SALUD": patient.Sede,
+          "ASISTIÓ NO ASISTIÓ A CONSULTA":
+            patient.Estado_cita === "Asistida"
+              ? "ASISTIÓ"
+              : patient.Estado_cita,
+        };
+      });
+
+      createExcel(
+        "PACIENTES NO ASIGNADOS",
+        "PACIENTES_NO_ASIGNADOS",
+        headersNotAsigned,
+        dataNotAsigned
+      );
+    }
   });
