@@ -1,4 +1,3 @@
-````markdown
 # Algoritmo de Distribución de Pacientes a Auxiliares de Enfermería
 
 Este proyecto consiste en un algoritmo desarrollado en Node.js para la distribución eficiente de pacientes a auxiliares de enfermería en un entorno médico.
@@ -41,4 +40,6 @@ Este proyecto es propiedad privada y no está disponible públicamente bajo una 
 ## Contacto
 
 Para obtener más información sobre este proyecto, ponte en contacto con el propietario a través de [correo electrónico](jonnyalejandro.ca0910@gmail.com) o por otros medios de comunicación adecuados.
+````markdown
+jonnyalejandro.ca0910@gmail.com
 ````
