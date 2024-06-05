@@ -1,8 +1,8 @@
 {
-  "file_name": "RptAppointmentListAppointment.csv",
+  "file_name_med": "RptAppointmentListAppointment2.csv",
   "AUX": [
     {
-      "name": "NATALIA ESPINOSA",
+      "name": "ERIKA MALDONADO",
       "active": true,
       "AIC": false,
       "PIJAOS": true,
@@ -11,7 +11,7 @@
     },
     {
       "name": "ALEJANDRA RODRIQUEZ",
-      "active": true,
+      "active": false,
       "AIC": false,
       "PIJAOS": true,
       "total_patients": 0,
@@ -37,15 +37,7 @@
       "name": "ERIKA CUBILLOS",
       "active": true,
       "AIC": false,
-      "PIJAOS": false,
-      "total_patients": 0,
-      "patients": []
-    },
-    {
-      "name": "IRENE ACOSTA",
-      "active": true,
-      "AIC": false,
-      "PIJAOS": false,
+      "PIJAOS": true,
       "total_patients": 0,
       "patients": []
     },
@@ -83,23 +75,27 @@
     },
     {
       "name": "MARCELA CUY",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,
-      "patients": []
+      "patients": [],
+
+      "popayan": true
+    },
+    {
+      "name": "IRENE ACOSTA",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": false,
+      "total_patients": 0,
+      "patients": [],
+
+      "popayan": true
     },
     {
       "name": "CATERINE ACERO",
-      "active": false,
-      "AIC": false,
-      "PIJAOS": false,
-      "total_patients": 0,
-      "patients": []
-    },
-    {
-      "name": "ERIKA MALDONADO",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,

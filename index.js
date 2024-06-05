@@ -1,18 +1,21 @@
+/**
+ * Distribución de pacientes Medicina
+ */
 const fs = require("fs");
 const csv = require("csv-parser");
-const createExcel = require("./create_excel");
-const { convertDateToISOFormat } = require("./utils");
+const createExcel = require("./utils/create_excel");
+const { convertDateToISOFormat } = require("./utils/index");
 
 const results = [];
-const { file_name, AUX } = require("./config.json");
+const { file_name_med, AUX } = require("./config.json");
 
 // Valida que el archivo exista
-if (!fs.existsSync(file_name)) {
-  console.error(`¡¡El archivo con nombre ${file_name} no existe!!`);
+if (!fs.existsSync(file_name_med)) {
+  console.error(`¡¡El archivo con nombre ${file_name_med} no existe!!`);
   process.exit(1);
 }
 
-fs.createReadStream(file_name)
+fs.createReadStream(file_name_med)
   .pipe(csv())
   .on("data", (data) => {
     // Limpiar las claves eliminando el carácter invisible al principio de la clave
@@ -47,8 +50,8 @@ fs.createReadStream(file_name)
     // Obtener los datos
     const dataAssisted = listPatients.slice();
     createExcel(
-      "PACIENTES ASISTIDOS",
-      "PACIENTES_ASISTIDOS",
+      "PACIENTES ASISTIDOS MEDICINA",
+      "PACIENTES_ASISTIDOS_MEDICINA",
       headersAssisted,
       dataAssisted
     );
@@ -64,7 +67,7 @@ fs.createReadStream(file_name)
       }
     });
 
-    //Ponemos color azul a la fila donde la entidad sea SANITAS
+    //Ponemos color azul a la fila donde el examen sea medicina general
     listPatients.forEach((patient) => {
       const examen = patient.Examen.toLowerCase();
       if (
@@ -92,11 +95,14 @@ fs.createReadStream(file_name)
     //auxiliares activos
     let active_doctors = AUX.filter((aux) => aux.active == true);
     let patients_per_doctor = Math.floor(tota_patients / active_doctors.length);
-    let remainder = tota_patients % active_doctors.length;
+    // let remainder = tota_patients % active_doctors.length;
 
-    patients_per_doctor -= Math.ceil(remainder / active_doctors.length);
+    // patients_per_doctor -= Math.ceil(remainder / active_doctors.length);
 
-    //Asignamos AIC
+    /*
+     * Asignamos AIC
+     */
+
     let patientAIC = listPatients.filter((patient) => patient.Entidad == "AIC");
     let auxAIC = active_doctors.find((aux) => aux.AIC == true);
     patientAIC.forEach((patient) => {
@@ -119,11 +125,14 @@ fs.createReadStream(file_name)
       }
     });
 
-    //Asignamos PIJAOS
+    /*
+     * Asignamos PIJAOS
+     */
     let patientPIJAOS = listPatients.filter(
       (patient) => patient.Entidad == "PIJAOS"
     );
     let auxPIJAOS = active_doctors.find((aux) => aux.PIJAOS == true);
+
     patientPIJAOS.forEach((patient) => {
       if (patient.AUXILIAR == "") {
         if (auxPIJAOS.name) {
@@ -142,6 +151,30 @@ fs.createReadStream(file_name)
           });
         }
       }
+    });
+
+    /*
+     * Filtrar por sede Popayán
+     */
+
+    let popayanPatients = listPatients.filter(
+      (patient) =>
+        patient.Sede.toLowerCase().includes("popayan cad") &&
+        patient.AUXILIAR == ""
+    );
+    let auxPopayan = active_doctors.filter((aux) => aux.popayan == true);
+
+    auxPopayan.forEach((aux) => {
+      if (aux.total_patients >= patients_per_doctor) return;
+
+      popayanPatients.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor)
+          return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
+      });
     });
 
     // Ordenamos aleatoriamente los auxiliares activos
@@ -215,11 +248,13 @@ fs.createReadStream(file_name)
 
     active_doctors.forEach((aux) => {
       let totalAsignedCaliPatients = 0;
+
+      if (aux.total_patients >= patients_per_doctor) return;
+
       caliPatients.forEach((patient) => {
         if (
           totalAsignedCaliPatients < maxCaliPatientsPerAux &&
-          patient.AUXILIAR == "" &&
-          aux.total_patients < patients_per_doctor
+          patient.AUXILIAR == ""
         ) {
           patient.AUXILIAR = aux.name.toUpperCase();
           aux.patients.push(patient);
@@ -232,19 +267,38 @@ fs.createReadStream(file_name)
     });
 
     // Asignar los pacientes restantes de CALI
-    active_doctors.forEach((aux) => {
-      let changeAux = false;
-      if (!changeAux && aux.total_patients < patients_per_doctor) {
-        caliPatients.forEach((patient) => {
-          if (!changeAux && patient.AUXILIAR == "") {
-            patient.AUXILIAR = aux.name.toUpperCase();
-            aux.patients.push(patient);
-            aux.total_patients++;
-            changeAux = true;
-          }
-        });
+    // active_doctors.forEach((aux) => {
+    //   if (aux.total_patients >= patients_per_doctor) return;
+
+    //   caliPatients.forEach((patient) => {
+    //     if (patient.AUXILIAR == "") {
+    //       patient.AUXILIAR = aux.name.toUpperCase();
+    //       aux.patients.push(patient);
+    //       aux.total_patients++;
+    //     }
+    //   });
+    // });
+    
+    let auxIndex = 0;  // Índice para recorrer los auxiliares
+    let totalAux = active_doctors.length;  // Total de auxiliares
+    
+    caliPatients.forEach((patient) => {
+      let assigned = false;
+    
+      while (!assigned) {
+        let aux = active_doctors[auxIndex];
+    
+        if (aux.total_patients < patients_per_doctor) {
+          patient.AUXILIAR = aux.name.toUpperCase();
+          aux.patients.push(patient);
+          aux.total_patients++;
+          assigned = true;
+        }
+    
+        auxIndex = (auxIndex + 1) % totalAux;  // Mover al siguiente auxiliar, circularmente
       }
     });
+    
 
     /**
      * Para todos los demas
@@ -264,23 +318,38 @@ fs.createReadStream(file_name)
       });
     });
 
-    const notAsignedPatients = listPatients.filter(
+    let notAsignedPatients = listPatients.filter(
       (patient) => patient.AUXILIAR == ""
     );
 
-    notAsignedPatients.forEach((patient) => {
-      active_doctors.forEach((aux) => {
-        if (patient.AUXILIAR == "") {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-        }
-      });
+    active_doctors.forEach((aux) => {
+      let changeAuxUltimate = false;
+      if (!changeAuxUltimate) {
+        notAsignedPatients.forEach((patient) => {
+          if (!changeAuxUltimate && patient.AUXILIAR == "") {
+            patient.AUXILIAR = aux.name.toUpperCase();
+            aux.patients.push(patient);
+            aux.total_patients++;
+            changeAuxUltimate = true;
+          }
+        });
+      }
     });
+
+    // notAsignedPatients.forEach((patient) => {
+    //   active_doctors.forEach((aux) => {
+    //     if (patient.AUXILIAR == "") {
+    //       patient.AUXILIAR = aux.name.toUpperCase();
+    //       aux.patients.push(patient);
+    //       aux.total_patients++;
+    //     }
+    //   });
+    // });
 
     const headersFinished = [
       "MEDICO",
       "AUXILIAR",
+      "TIPO ID",
       "# IDENTIFICACIÓN",
       "NOMBRES Y APELLIDOS DEL PACIENTE",
       "TIPO DE EXAMEN PRIMERA VEZ CONTROL",
@@ -317,6 +386,7 @@ fs.createReadStream(file_name)
       return {
         MEDICO: patient.MEDICO,
         AUXILIAR: patient.AUXILIAR,
+        "TIPO ID": patient.Tip_Doc_,
         "# IDENTIFICACIÓN": patient.Documento,
         "NOMBRES Y APELLIDOS DEL PACIENTE": patient.Paciente,
         "TIPO DE EXAMEN PRIMERA VEZ CONTROL": patient.Tipo_de_examen1,
@@ -333,14 +403,16 @@ fs.createReadStream(file_name)
     });
 
     createExcel(
-      "DIST. PACIENTES",
-      "DIST_PACIENTES",
+      "DIST. PACIENTES MEDICINA",
+      "DIST_PACIENTES_MEDICINA",
       headersFinished,
       dataFinished
     );
 
+    let notAsigned = listPatients.filter((patient) => patient.AUXILIAR == "");
+
     // validar si hay pacientes no asignados
-    if (notAsignedPatients.length > 0) {
+    if (notAsigned.length > 0) {
       const headersNotAsigned = [
         "# IDENTIFICACIÓN",
         "NOMBRES Y APELLIDOS DEL PACIENTE",
@@ -351,7 +423,7 @@ fs.createReadStream(file_name)
         "ASISTIÓ NO ASISTIÓ A CONSULTA",
       ];
 
-      const dataNotAsigned = notAsignedPatients.map((patient) => {
+      const dataNotAsigned = notAsigned.map((patient) => {
         return {
           "# IDENTIFICACIÓN": patient.Documento,
           "NOMBRES Y APELLIDOS DEL PACIENTE": patient.Paciente,
@@ -369,8 +441,8 @@ fs.createReadStream(file_name)
       });
 
       createExcel(
-        "PACIENTES NO ASIGNADOS",
-        "PACIENTES_NO_ASIGNADOS",
+        "PACIENTES NO ASIGNADOS MEDICINA",
+        "PACIENTES_NO_ASIGNADOS_MEDICINA",
         headersNotAsigned,
         dataNotAsigned
       );

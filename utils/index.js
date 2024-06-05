@@ -12,7 +12,7 @@ function convertDateToISOFormat(dateString) {
   const time = dateParts[1].split(":");
   let hours = parseInt(time[0]);
   const minutes = parseInt(time[1]);
-  const seconds = parseInt(time[2]);
+  const seconds = parseInt(time[2] ?? 0);
 
   // Adjust the hours for 24-hour format if it's PM
   if (dateParts[2] === "PM" && hours < 12) {
