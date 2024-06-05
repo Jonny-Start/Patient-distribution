@@ -78,18 +78,6 @@ fs.createReadStream(file_name_med)
       }
     });
 
-    // // Obtener los encabezados del primer objeto
-    // const headersRename = Object.keys(listPatients[0]);
-    // // Obtener los datos (omitir el primer objeto, ya que contiene los encabezados)
-    // const dataRename = listPatients.slice(1);
-
-    // await createExcel(
-    //   "Antes de la asignacion",
-    //   "antes_de_asignacion",
-    //   headersRename,
-    //   dataRename
-    // );
-
     // Asignamos los pacientes a los médicos
     let tota_patients = listPatients.length;
     //auxiliares activos
@@ -265,19 +253,6 @@ fs.createReadStream(file_name_med)
       // Eliminar los pacientes asignados de la lista de pacientes de CALI
       caliPatients = caliPatients.filter((patient) => patient.AUXILIAR == "");
     });
-
-    // Asignar los pacientes restantes de CALI
-    // active_doctors.forEach((aux) => {
-    //   if (aux.total_patients >= patients_per_doctor) return;
-
-    //   caliPatients.forEach((patient) => {
-    //     if (patient.AUXILIAR == "") {
-    //       patient.AUXILIAR = aux.name.toUpperCase();
-    //       aux.patients.push(patient);
-    //       aux.total_patients++;
-    //     }
-    //   });
-    // });
     
     let auxIndex = 0;  // Índice para recorrer los auxiliares
     let totalAux = active_doctors.length;  // Total de auxiliares
