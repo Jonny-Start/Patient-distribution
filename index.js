@@ -92,25 +92,38 @@ fs.createReadStream(file_name_med)
      */
 
     let patientAIC = listPatients.filter((patient) => patient.Entidad == "AIC");
-    let auxAIC = active_doctors.find((aux) => aux.AIC == true);
-    patientAIC.forEach((patient) => {
-      if (patient.AUXILIAR == "") {
-        if (auxAIC.name) {
-          if (auxAIC.total_patients < patients_per_doctor) {
-            auxAIC.patients.push(patient);
-            auxAIC.total_patients++;
-            patient.AUXILIAR = auxAIC.name.toUpperCase();
-          }
-        } else {
-          auxAIC.forEach((aux) => {
-            if (aux.total_patients < patients_per_doctor) {
-              aux.patients.push(patient);
-              auxAIC.total_patients++;
-              patient.AUXILIAR = aux.name.toUpperCase();
-            }
-          });
-        }
-      }
+    let auxAIC = active_doctors.filter((aux) => aux.AIC == true);
+    // patientAIC.forEach((patient) => {
+    //   if (patient.AUXILIAR == "") {
+    //     if (auxAIC.name) {
+    //       if (auxAIC.total_patients < patients_per_doctor) {
+    //         auxAIC.patients.push(patient);
+    //         auxAIC.total_patients++;
+    //         patient.AUXILIAR = auxAIC.name.toUpperCase();
+    //       }
+    //     } else {
+    //       auxAIC.forEach((aux) => {
+    //         if (aux.total_patients < patients_per_doctor) {
+    //           aux.patients.push(patient);
+    //           auxAIC.total_patients++;
+    //           patient.AUXILIAR = aux.name.toUpperCase();
+    //         }
+    //       });
+    //     }
+    //   }
+    // });
+
+    auxAIC.forEach((aux) => {
+      if (aux.total_patients >= patients_per_doctor) return;
+
+      patientAIC.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor)
+          return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
+      });
     });
 
     /*
@@ -119,31 +132,79 @@ fs.createReadStream(file_name_med)
     let patientPIJAOS = listPatients.filter(
       (patient) => patient.Entidad == "PIJAOS"
     );
-    let auxPIJAOS = active_doctors.find((aux) => aux.PIJAOS == true);
+    let auxPIJAOS = active_doctors.filter((aux) => aux.PIJAOS == true);
 
-    patientPIJAOS.forEach((patient) => {
-      if (patient.AUXILIAR == "") {
-        if (auxPIJAOS.name) {
-          if (auxPIJAOS.total_patients < patients_per_doctor) {
-            auxPIJAOS.patients.push(patient);
-            auxPIJAOS.total_patients++;
-            patient.AUXILIAR = auxPIJAOS.name.toUpperCase();
-          }
-        } else {
-          auxPIJAOS.forEach((aux) => {
-            if (aux.total_patients < patients_per_doctor) {
-              aux.patients.push(patient);
-              auxPIJAOS.total_patients++;
-              patient.AUXILIAR = aux.name.toUpperCase();
-            }
-          });
+    auxPIJAOS.forEach((aux) => {
+      if (aux.total_patients >= patients_per_doctor) return;
+
+      patientPIJAOS.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor)
+          return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
+      });
+    });
+
+    /**
+     * Filtrar por CALI
+     */
+
+    // Calcular la cantidad de pacientes de CALI
+    let caliPatients = listPatients.filter(
+      (patient) =>
+        patient.Sede.toLowerCase().includes("cali") && patient.AUXILIAR == ""
+    );
+
+    // calcular la cantidad máxima de pacientes de CALI por auxiliar
+    const maxCaliPatientsPerAux = Math.floor(
+      caliPatients.length / active_doctors.length
+    );
+
+    active_doctors.forEach((aux) => {
+      let totalAsignedCaliPatients = 0;
+
+      if (aux.total_patients >= patients_per_doctor) return;
+
+      caliPatients.forEach((patient) => {
+        if (
+          totalAsignedCaliPatients < maxCaliPatientsPerAux &&
+          patient.AUXILIAR == ""
+        ) {
+          patient.AUXILIAR = aux.name.toUpperCase();
+          aux.patients.push(patient);
+          aux.total_patients++;
+          totalAsignedCaliPatients++;
         }
+      });
+      // Eliminar los pacientes asignados de la lista de pacientes de CALI
+      caliPatients = caliPatients.filter((patient) => patient.AUXILIAR == "");
+    });
+
+    let auxIndex = 0;  // Índice para recorrer los auxiliares
+    let totalAux = active_doctors.length;  // Total de auxiliares
+
+    caliPatients.forEach((patient) => {
+      let assigned = false;
+
+      while (!assigned) {
+        let aux = active_doctors[auxIndex];
+
+        if (aux.total_patients < patients_per_doctor) {
+          patient.AUXILIAR = aux.name.toUpperCase();
+          aux.patients.push(patient);
+          aux.total_patients++;
+          assigned = true;
+        }
+
+        auxIndex = (auxIndex + 1) % totalAux;  // Mover al siguiente auxiliar, circularmente
       }
     });
 
     /*
-     * Filtrar por sede Popayán
-     */
+    * Filtrar por sede Popayán
+    */
 
     let popayanPatients = listPatients.filter(
       (patient) =>
@@ -218,62 +279,6 @@ fs.createReadStream(file_name_med)
         });
       }
     });
-
-    /**
-     * Filtrar por CALI
-     */
-
-    // Calcular la cantidad de pacientes de CALI
-    let caliPatients = listPatients.filter(
-      (patient) =>
-        patient.Sede.toLowerCase().includes("cali") && patient.AUXILIAR == ""
-    );
-
-    // calcular la cantidad máxima de pacientes de CALI por auxiliar
-    const maxCaliPatientsPerAux = Math.floor(
-      caliPatients.length / active_doctors.length
-    );
-
-    active_doctors.forEach((aux) => {
-      let totalAsignedCaliPatients = 0;
-
-      if (aux.total_patients >= patients_per_doctor) return;
-
-      caliPatients.forEach((patient) => {
-        if (
-          totalAsignedCaliPatients < maxCaliPatientsPerAux &&
-          patient.AUXILIAR == ""
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          totalAsignedCaliPatients++;
-        }
-      });
-      // Eliminar los pacientes asignados de la lista de pacientes de CALI
-      caliPatients = caliPatients.filter((patient) => patient.AUXILIAR == "");
-    });
-    
-    let auxIndex = 0;  // Índice para recorrer los auxiliares
-    let totalAux = active_doctors.length;  // Total de auxiliares
-    
-    caliPatients.forEach((patient) => {
-      let assigned = false;
-    
-      while (!assigned) {
-        let aux = active_doctors[auxIndex];
-    
-        if (aux.total_patients < patients_per_doctor) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          assigned = true;
-        }
-    
-        auxIndex = (auxIndex + 1) % totalAux;  // Mover al siguiente auxiliar, circularmente
-      }
-    });
-    
 
     /**
      * Para todos los demas
