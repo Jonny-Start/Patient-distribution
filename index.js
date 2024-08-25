@@ -43,7 +43,11 @@ fs.createReadStream(file_name_med)
       (patient) => patient.Estado_cita === "Asistida"
     );
 
-    // Retornamos la creacion de un excel con todos los datos de los pacientes asistidos con formato XLXS
+    /**
+     * **************************************************************************************************
+     * Retornamos la creación de un excel con todos los datos de los pacientes asistidos con formato XLXS
+     * **************************************************************************************************
+     */
 
     // Obtener los encabezados del primer objeto
     const headersAssisted = Object.keys(listPatients[0]);
@@ -56,7 +60,11 @@ fs.createReadStream(file_name_med)
       dataAssisted
     );
 
-    //Reasignamos el nombre SANITAS, PIJAOS, AIC a las entidades
+    /**
+     * **********************************************************
+     * Reasignamos el nombre SANITAS, PIJAOS, AIC a las entidades
+     * **********************************************************
+     */
     listPatients.forEach((patient) => {
       if (patient.Entidad.toLowerCase().includes("sanitas")) {
         patient.Entidad = "SANITAS";
@@ -67,7 +75,11 @@ fs.createReadStream(file_name_med)
       }
     });
 
-    //Ponemos color azul a la fila donde el examen sea medicina general
+    /**
+     * *****************************************************************
+     * Ponemos color azul a la fila donde el examen sea medicina general
+     * *****************************************************************
+     */
     listPatients.forEach((patient) => {
       const examen = patient.Examen.toLowerCase();
       if (
@@ -78,40 +90,45 @@ fs.createReadStream(file_name_med)
       }
     });
 
-    // Asignamos los pacientes a los médicos
-    let tota_patients = listPatients.length;
-    //auxiliares activos
+    /**
+     * *****************************************************************
+     * Realizamos conteo y distribución de pacientes por auxiliar activo
+     * *****************************************************************
+     */
+    let total_patients = listPatients.length;
+
     let active_doctors = AUX.filter((aux) => aux.active == true);
-    let patients_per_doctor = Math.floor(tota_patients / active_doctors.length);
-    // let remainder = tota_patients % active_doctors.length;
+    
+    //Cantidad de pacientes por auxiliar antes de aplicar el porcentaje y el maximo de pacientes
+    let patients_per_doctor_before = Math.floor(total_patients / active_doctors.length);
+    
+    //Cambiar de porcentaje a cantidad de pacientes si existe un maximo de porcentaje al auxiliar
+    let sumMaximumPatients = 0; //Suma de los maximos de pacientes
+    let numberPatientsWithRestrictions = 0; //Cantidad de auxiliares con restricciones
+    active_doctors.forEach((aux) => { 
+      if(aux.maxPatientsPercentage != null){
+        let max_Patients = Math.floor((aux.maxPatientsPercentage * patients_per_doctor_before) / 100); //Cantidad máxima de pacientes por auxiliar según el porcentaje
+        sumMaximumPatients += max_Patients; // Asignamos la cantidad máxima de pacientes por auxiliar
+        aux.maxPatients = max_Patients; //Cantidad máxima de pacientes por auxiliar
+        numberPatientsWithRestrictions++; //Cantidad de auxiliares con restricciones
+      }else if (aux.maxPatients != null){
+        sumMaximumPatients += maxPatients; //Cantidad máxima de pacientes por auxiliar
+        numberPatientsWithRestrictions++; //Cantidad de auxiliares con restricciones
+      }
+    });
 
-    // patients_per_doctor -= Math.ceil(remainder / active_doctors.length);
+    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
+    let patients_per_doctor = Math.floor((total_patients - sumMaximumPatients) / (active_doctors.length - numberPatientsWithRestrictions));
 
-    /*
+
+    /* 
+     * *************
      * Asignamos AIC
+     * *************
      */
 
     let patientAIC = listPatients.filter((patient) => patient.Entidad == "AIC");
     let auxAIC = active_doctors.filter((aux) => aux.AIC == true);
-    // patientAIC.forEach((patient) => {
-    //   if (patient.AUXILIAR == "") {
-    //     if (auxAIC.name) {
-    //       if (auxAIC.total_patients < patients_per_doctor) {
-    //         auxAIC.patients.push(patient);
-    //         auxAIC.total_patients++;
-    //         patient.AUXILIAR = auxAIC.name.toUpperCase();
-    //       }
-    //     } else {
-    //       auxAIC.forEach((aux) => {
-    //         if (aux.total_patients < patients_per_doctor) {
-    //           aux.patients.push(patient);
-    //           auxAIC.total_patients++;
-    //           patient.AUXILIAR = aux.name.toUpperCase();
-    //         }
-    //       });
-    //     }
-    //   }
-    // });
 
     auxAIC.forEach((aux) => {
       if (aux.total_patients >= patients_per_doctor) return;
@@ -126,8 +143,14 @@ fs.createReadStream(file_name_med)
       });
     });
 
+
+
+
+
     /*
+     * ****************
      * Asignamos PIJAOS
+     * ****************
      */
     let patientPIJAOS = listPatients.filter(
       (patient) => patient.Entidad == "PIJAOS"
@@ -147,8 +170,13 @@ fs.createReadStream(file_name_med)
       });
     });
 
+
+
+
     /**
+     * ****************
      * Filtrar por CALI
+     * ****************
      */
 
     // Calcular la cantidad de pacientes de CALI
@@ -202,8 +230,14 @@ fs.createReadStream(file_name_med)
       }
     });
 
+
+
+
+
     /*
+    * ************************
     * Filtrar por sede Popayán
+    * ************************
     */
 
     let popayanPatients = listPatients.filter(
@@ -229,8 +263,14 @@ fs.createReadStream(file_name_med)
     // Ordenamos aleatoriamente los auxiliares activos
     active_doctors = active_doctors.sort(() => Math.random() - 0.5);
 
+
+
+
+
     /**
+     * *******************************
      * Asignar los de medicina general
+     * *******************************
      */
 
     // Calcular la cantidad de pacientes de medicina general
@@ -280,8 +320,14 @@ fs.createReadStream(file_name_med)
       }
     });
 
+
+
+
+
     /**
+     * ********************
      * Para todos los demas
+     * ********************
      */
 
     // Asignar ya los demas pacientes a los auxiliares
@@ -316,15 +362,18 @@ fs.createReadStream(file_name_med)
       }
     });
 
-    // notAsignedPatients.forEach((patient) => {
-    //   active_doctors.forEach((aux) => {
-    //     if (patient.AUXILIAR == "") {
-    //       patient.AUXILIAR = aux.name.toUpperCase();
-    //       aux.patients.push(patient);
-    //       aux.total_patients++;
-    //     }
-    //   });
-    // });
+
+
+
+
+
+
+    /**
+     * ********************************************************
+     * Crear y exportar echivo con la distribución de pacientes
+     * ********************************************************
+     */
+
 
     const headersFinished = [
       "MEDICO",
@@ -356,6 +405,7 @@ fs.createReadStream(file_name_med)
         }
       }
     });
+
 
     // Crear la fecha de mañana para la distribución
     let tomorrow = new Date(new Date().setHours(0, 0, 0, 0)); // Establece la hora a las 00:00:00 de hoy
@@ -391,7 +441,15 @@ fs.createReadStream(file_name_med)
 
     let notAsigned = listPatients.filter((patient) => patient.AUXILIAR == "");
 
-    // validar si hay pacientes no asignados
+
+
+
+
+    /**
+     * *************************************
+     * Validar si hay pacientes no asignados
+     * *************************************
+     */
     if (notAsigned.length > 0) {
       const headersNotAsigned = [
         "# IDENTIFICACIÓN",
