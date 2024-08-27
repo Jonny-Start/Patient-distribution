@@ -1,5 +1,5 @@
 {
-  "file_name_med": "RptAppointmentListAppointment.csv",
+  "file_name_med": "archivo.csv",
   "AUX": [
     {
       "name": "ERIKA MALDONADO",
@@ -9,7 +9,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "CATERINE ACERO",
@@ -19,7 +22,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "ALEJANDRA RODRIQUEZ",
@@ -29,7 +35,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "LORENA CHAVES",
@@ -39,7 +48,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "CAROL BOHORQUEZ",
@@ -49,7 +61,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "ERIKA CUBILLOS",
@@ -59,7 +74,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "LIZETH ARIZA",
@@ -69,7 +87,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "PEDRO PASTRANA",
@@ -79,7 +100,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "TANIA CAMARGO",
@@ -89,7 +113,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "ANGIE DIAZ",
@@ -99,7 +126,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "MARCELA CUY",
@@ -110,8 +140,10 @@
       "maxPatients": null,
       "maxPatientsPercentage": null,
       "patients": [],
+      "popayan": true,
 
-      "popayan": true
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "IRENE ACOSTA",
@@ -122,8 +154,10 @@
       "maxPatients": null,
       "maxPatientsPercentage": null,
       "patients": [],
-
-      "popayan": true
+      "popayan": true,
+      
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "YAMILETH DELGADO",
@@ -133,7 +167,10 @@
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
     },
     {
       "name": "PAOLA MARTINEZ",
@@ -141,9 +178,12 @@
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,
-      "maxPatients": null,
+      "maxPatients": 10,
       "maxPatientsPercentage": null,
-      "patients": []
+      "patients": [],
+
+      "maxCali": 0,
+      "maxGeneral": null
     }
   ]
 }

@@ -98,21 +98,21 @@ fs.createReadStream(file_name_med)
     let total_patients = listPatients.length;
 
     let active_doctors = AUX.filter((aux) => aux.active == true);
-    
+
     //Cantidad de pacientes por auxiliar antes de aplicar el porcentaje y el maximo de pacientes
     let patients_per_doctor_before = Math.floor(total_patients / active_doctors.length);
-    
+
     //Cambiar de porcentaje a cantidad de pacientes si existe un maximo de porcentaje al auxiliar
     let sumMaximumPatients = 0; //Suma de los maximos de pacientes
     let numberPatientsWithRestrictions = 0; //Cantidad de auxiliares con restricciones
-    active_doctors.forEach((aux) => { 
-      if(aux.maxPatientsPercentage != null){
+    active_doctors.forEach((aux) => {
+      if (aux.maxPatientsPercentage != null) {
         let max_Patients = Math.floor((aux.maxPatientsPercentage * patients_per_doctor_before) / 100); //Cantidad máxima de pacientes por auxiliar según el porcentaje
         sumMaximumPatients += max_Patients; // Asignamos la cantidad máxima de pacientes por auxiliar
         aux.maxPatients = max_Patients; //Cantidad máxima de pacientes por auxiliar
         numberPatientsWithRestrictions++; //Cantidad de auxiliares con restricciones
-      }else if (aux.maxPatients != null){
-        sumMaximumPatients += maxPatients; //Cantidad máxima de pacientes por auxiliar
+      } else if (aux.maxPatients != null) {
+        sumMaximumPatients += aux.maxPatients; //Cantidad máxima de pacientes por auxiliar
         numberPatientsWithRestrictions++; //Cantidad de auxiliares con restricciones
       }
     });
@@ -131,11 +131,10 @@ fs.createReadStream(file_name_med)
     let auxAIC = active_doctors.filter((aux) => aux.AIC == true);
 
     auxAIC.forEach((aux) => {
-      if (aux.total_patients >= patients_per_doctor) return;
+      if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
       patientAIC.forEach((patient) => {
-        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor)
-          return;
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
         patient.AUXILIAR = aux.name.toUpperCase();
         aux.patients.push(patient);
@@ -158,11 +157,10 @@ fs.createReadStream(file_name_med)
     let auxPIJAOS = active_doctors.filter((aux) => aux.PIJAOS == true);
 
     auxPIJAOS.forEach((aux) => {
-      if (aux.total_patients >= patients_per_doctor) return;
+      if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
       patientPIJAOS.forEach((patient) => {
-        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor)
-          return;
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
         patient.AUXILIAR = aux.name.toUpperCase();
         aux.patients.push(patient);
@@ -185,19 +183,56 @@ fs.createReadStream(file_name_med)
         patient.Sede.toLowerCase().includes("cali") && patient.AUXILIAR == ""
     );
 
+    /**
+     * *************************Maxima para auxiliares con restricción***********************
+     */
+
     // calcular la cantidad máxima de pacientes de CALI por auxiliar
-    const maxCaliPatientsPerAux = Math.floor(
+    let maxCaliPatientsPerAuxBefore = Math.floor(
       caliPatients.length / active_doctors.length
     );
+
+
+    let sumMaximumPatientsCali = 0;
+    let numberPatientsWithRestrictionsCali = 0;
+    active_doctors.forEach((aux) => {
+      if (aux.maxPatientsPercentage != null) {
+        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxCaliPatientsPerAuxBefore) / 100);
+        sumMaximumPatientsCali += max_Patients;
+        aux.maxCali = max_Patients;
+        numberPatientsWithRestrictionsCali++;
+      } else if (aux.maxCali != null) {
+        sumMaximumPatientsCali += aux.maxCali;
+        numberPatientsWithRestrictionsCali++;
+      }
+    });
+
+    /**
+     * ****************************************************************************************
+     */
+
+
+
+    // // calcular la cantidad máxima de pacientes de CALI por auxiliar
+    // const maxCaliPatientsPerAux = Math.floor(
+    //   caliPatients.length / active_doctors.length
+    // );
+
+
+    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
+    const maxCaliPatientsPerAux = Math.floor((caliPatients.length - sumMaximumPatientsCali) / (active_doctors.length - numberPatientsWithRestrictionsCali));
+
+
 
     active_doctors.forEach((aux) => {
       let totalAsignedCaliPatients = 0;
 
-      if (aux.total_patients >= patients_per_doctor) return;
+      if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
       caliPatients.forEach((patient) => {
         if (
           totalAsignedCaliPatients < maxCaliPatientsPerAux &&
+          (totalAsignedCaliPatients < aux.maxCali || aux.maxCali === null) &&
           patient.AUXILIAR == ""
         ) {
           patient.AUXILIAR = aux.name.toUpperCase();
@@ -219,7 +254,7 @@ fs.createReadStream(file_name_med)
       while (!assigned) {
         let aux = active_doctors[auxIndex];
 
-        if (aux.total_patients < patients_per_doctor) {
+        if (aux.total_patients < patients_per_doctor && (aux.total_patients < aux.maxPatients && Number.isFinite(aux.maxPatients))) {
           patient.AUXILIAR = aux.name.toUpperCase();
           aux.patients.push(patient);
           aux.total_patients++;
@@ -248,11 +283,10 @@ fs.createReadStream(file_name_med)
     let auxPopayan = active_doctors.filter((aux) => aux.popayan == true);
 
     auxPopayan.forEach((aux) => {
-      if (aux.total_patients >= patients_per_doctor) return;
+      if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
       popayanPatients.forEach((patient) => {
-        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor)
-          return;
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
         patient.AUXILIAR = aux.name.toUpperCase();
         aux.patients.push(patient);
@@ -292,7 +326,8 @@ fs.createReadStream(file_name_med)
         if (
           totalAsignedGeneralPatients < maxMedGeneralPatientsPerAux &&
           patient.AUXILIAR == "" &&
-          aux.total_patients < patients_per_doctor
+          aux.total_patients < patients_per_doctor &&
+          (aux.total_patients < aux.maxPatients && Number.isFinite(aux.maxPatients))
         ) {
           patient.AUXILIAR = aux.name.toUpperCase();
           aux.patients.push(patient);
@@ -308,7 +343,7 @@ fs.createReadStream(file_name_med)
 
     active_doctors.forEach((aux) => {
       let changeAuxGeneral = false;
-      if (!changeAuxGeneral && aux.total_patients < patients_per_doctor) {
+      if (!changeAuxGeneral && aux.total_patients < patients_per_doctor && (aux.total_patients < aux.maxPatients && Number.isFinite(aux.maxPatients))) {
         medGeneralPatients.forEach((patient) => {
           if (!changeAuxGeneral && patient.AUXILIAR == "") {
             patient.AUXILIAR = aux.name.toUpperCase();
@@ -335,7 +370,8 @@ fs.createReadStream(file_name_med)
       listPatients.forEach((patient) => {
         if (
           patient.AUXILIAR == "" &&
-          aux.total_patients < patients_per_doctor
+          aux.total_patients < patients_per_doctor &&
+          (aux.total_patients < aux.maxPatients || aux.maxPatients == null)
         ) {
           patient.AUXILIAR = aux.name.toUpperCase();
           aux.patients.push(patient);
@@ -348,7 +384,10 @@ fs.createReadStream(file_name_med)
       (patient) => patient.AUXILIAR == ""
     );
 
+    // Asignar los pacientes no asignados a los auxiliares activos restantes
     active_doctors.forEach((aux) => {
+      if (aux.maxPatients === aux.total_patients) return; // Restringir si ya alcanzó el máximo de pacientes asignados
+
       let changeAuxUltimate = false;
       if (!changeAuxUltimate) {
         notAsignedPatients.forEach((patient) => {
