@@ -1,5 +1,5 @@
 {
-  "file_name_med": "archivo.csv",
+  "file_name_med": "agenda 29.csv",
   "AUX": [
     {
       "name": "ERIKA MALDONADO",
@@ -15,7 +15,7 @@
       "maxGeneral": null
     },
     {
-      "name": "CATERINE ACERO",
+      "name": "CATHERINE ACERO",
       "active": true,
       "AIC": false,
       "PIJAOS": true,
@@ -94,7 +94,7 @@
     },
     {
       "name": "PEDRO PASTRANA",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,
@@ -120,7 +120,7 @@
     },
     {
       "name": "ANGIE DIAZ",
-      "active": true,
+      "active": false,
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,

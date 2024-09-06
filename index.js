@@ -80,6 +80,9 @@ fs.createReadStream(file_name_med)
      * Ponemos color azul a la fila donde el examen sea medicina general
      * *****************************************************************
      */
+    let countMedGeneral = 0;
+    let countMedGeneralAIC = 0;
+    let countMedGeneralPIJAO = 0;
     listPatients.forEach((patient) => {
       const examen = patient.Examen.toLowerCase();
       if (
@@ -87,6 +90,12 @@ fs.createReadStream(file_name_med)
         examen.includes("consulta medico general")
       ) {
         patient.apply_style = true;
+        countMedGeneral++;
+        if (patient.Entidad === "AIC") {
+          countMedGeneralAIC++;
+        } else if (patient.Entidad === "PIJAOS") {
+          countMedGeneralPIJAO++;
+        }
       }
     });
 
@@ -171,6 +180,38 @@ fs.createReadStream(file_name_med)
 
 
 
+    /*
+    * ************************
+    * Filtrar por sede Popayán
+    * ************************
+    */
+
+    let popayanPatients = listPatients.filter(
+      (patient) =>
+        patient.Sede.toLowerCase().includes("popayan cad") &&
+        patient.AUXILIAR == ""
+    );
+    let auxPopayan = active_doctors.filter((aux) => aux.popayan == true);
+
+    auxPopayan.forEach((aux) => {
+      if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+      popayanPatients.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
+      });
+    });
+
+    // Ordenamos aleatoriamente los auxiliares activos
+    active_doctors = active_doctors.sort(() => Math.random() - 0.5);
+
+
+
+
+    
     /**
      * ****************
      * Filtrar por CALI
@@ -254,7 +295,9 @@ fs.createReadStream(file_name_med)
       while (!assigned) {
         let aux = active_doctors[auxIndex];
 
-        if (aux.total_patients < patients_per_doctor && (aux.total_patients < aux.maxPatients && Number.isFinite(aux.maxPatients))) {
+        if (aux.total_patients < patients_per_doctor &&
+          (aux.maxPatients === null || aux.total_patients < aux.maxPatients)
+        ) {
           patient.AUXILIAR = aux.name.toUpperCase();
           aux.patients.push(patient);
           aux.total_patients++;
@@ -264,40 +307,6 @@ fs.createReadStream(file_name_med)
         auxIndex = (auxIndex + 1) % totalAux;  // Mover al siguiente auxiliar, circularmente
       }
     });
-
-
-
-
-
-    /*
-    * ************************
-    * Filtrar por sede Popayán
-    * ************************
-    */
-
-    let popayanPatients = listPatients.filter(
-      (patient) =>
-        patient.Sede.toLowerCase().includes("popayan cad") &&
-        patient.AUXILIAR == ""
-    );
-    let auxPopayan = active_doctors.filter((aux) => aux.popayan == true);
-
-    auxPopayan.forEach((aux) => {
-      if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
-
-      popayanPatients.forEach((patient) => {
-        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
-
-        patient.AUXILIAR = aux.name.toUpperCase();
-        aux.patients.push(patient);
-        aux.total_patients++;
-      });
-    });
-
-    // Ordenamos aleatoriamente los auxiliares activos
-    active_doctors = active_doctors.sort(() => Math.random() - 0.5);
-
-
 
 
 
@@ -315,9 +324,39 @@ fs.createReadStream(file_name_med)
         patient.AUXILIAR == ""
     );
 
+
+    /**
+     * *************************Maxima para auxiliares con restricción***********************
+     */
+
+    // calcular la cantidad máxima de pacientes de medicina general por auxiliar
+    const maxMedGeneralPatientsPerAuxBefore = Math.floor(
+      medGeneralPatients.length / active_doctors.length
+    );
+
+
+    let sumMaximumPatientsGeneral = 0;
+    let numberPatientsWithRestrictionsGeneral = 0;
+    active_doctors.forEach((aux) => {
+      if (aux.maxPatientsPercentage != null) {
+        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxMedGeneralPatientsPerAuxBefore) / 100);
+        sumMaximumPatientsGeneral += max_Patients;
+        aux.maxGeneral = max_Patients;
+        numberPatientsWithRestrictionsGeneral++;
+      } else if (aux.maxGeneral != null) {
+        sumMaximumPatientsGeneral += aux.maxGeneral;
+        numberPatientsWithRestrictionsGeneral++;
+      }
+    });
+
+    /**
+     * ****************************************************************************************
+     */
+
+
     // Calcular la cantidad máxima de pacientes de medicina general por auxiliar
     const maxMedGeneralPatientsPerAux = Math.floor(
-      medGeneralPatients.length / active_doctors.length
+      (medGeneralPatients.length - sumMaximumPatientsGeneral) / (active_doctors.length - numberPatientsWithRestrictionsGeneral)
     );
 
     active_doctors.forEach((aux) => {
@@ -327,7 +366,7 @@ fs.createReadStream(file_name_med)
           totalAsignedGeneralPatients < maxMedGeneralPatientsPerAux &&
           patient.AUXILIAR == "" &&
           aux.total_patients < patients_per_doctor &&
-          (aux.total_patients < aux.maxPatients && Number.isFinite(aux.maxPatients))
+          (totalAsignedGeneralPatients < aux.maxGeneral || aux.maxGeneral === null)
         ) {
           patient.AUXILIAR = aux.name.toUpperCase();
           aux.patients.push(patient);
@@ -343,7 +382,10 @@ fs.createReadStream(file_name_med)
 
     active_doctors.forEach((aux) => {
       let changeAuxGeneral = false;
-      if (!changeAuxGeneral && aux.total_patients < patients_per_doctor && (aux.total_patients < aux.maxPatients && Number.isFinite(aux.maxPatients))) {
+      if (!changeAuxGeneral &&
+        aux.total_patients < patients_per_doctor &&
+        (aux.total_patients < aux.maxPatients || aux.maxPatients === null)
+      ) {
         medGeneralPatients.forEach((patient) => {
           if (!changeAuxGeneral && patient.AUXILIAR == "") {
             patient.AUXILIAR = aux.name.toUpperCase();
