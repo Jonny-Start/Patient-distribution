@@ -1,5 +1,5 @@
 {
-  "file_name_med": "agenda 29.csv",
+  "file_name_med": "DISTRIBUCION LUNES JONNY.csv",
   "AUX": [
     {
       "name": "ERIKA MALDONADO",
@@ -120,7 +120,7 @@
     },
     {
       "name": "ANGIE DIAZ",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,
@@ -178,7 +178,7 @@
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,
-      "maxPatients": 10,
+      "maxPatients": null,
       "maxPatientsPercentage": null,
       "patients": [],
 

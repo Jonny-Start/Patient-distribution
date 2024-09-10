@@ -272,6 +272,7 @@ fs.createReadStream(file_name_med)
 
       caliPatients.forEach((patient) => {
         if (
+          aux.total_patients >= patients_per_doctor ||
           totalAsignedCaliPatients < maxCaliPatientsPerAux &&
           (totalAsignedCaliPatients < aux.maxCali || aux.maxCali === null) &&
           patient.AUXILIAR == ""
