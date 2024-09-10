@@ -182,7 +182,7 @@
       "maxPatientsPercentage": null,
       "patients": [],
 
-      "maxCali": 0,
+      "maxCali": null,
       "maxGeneral": null
     }
   ]
