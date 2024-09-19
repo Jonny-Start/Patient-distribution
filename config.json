@@ -1,5 +1,5 @@
 {
-  "file_name_med": "DISTRIBUCION LUNES JONNY.csv",
+  "file_name_med": "nombre de archivo.csv",
   "AUX": [
     {
       "name": "ERIKA MALDONADO",
@@ -133,7 +133,7 @@
     },
     {
       "name": "MARCELA CUY",
-      "active": true,
+      "active": false,
       "AIC": false,
       "PIJAOS": false,
       "total_patients": 0,
