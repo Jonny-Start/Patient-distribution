@@ -1,11 +1,12 @@
 {
-  "file_name_med": "nombre de archivo.csv",
+  "file_name_med": "AGENDA 16 NOV.csv",
   "AUX": [
     {
       "name": "ERIKA MALDONADO",
       "active": true,
       "AIC": false,
       "PIJAOS": true,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -19,6 +20,7 @@
       "active": true,
       "AIC": false,
       "PIJAOS": true,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -29,9 +31,24 @@
     },
     {
       "name": "ALEJANDRA RODRIQUEZ",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
+      "NUEVA_EPS": false,
+      "total_patients": 0,
+      "maxPatients": null,
+      "maxPatientsPercentage": null,
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
+    },
+    {
+      "name": "PAOLA HENAO",
+      "active": true,
+      "AIC": true,
+      "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -45,6 +62,7 @@
       "active": true,
       "AIC": true,
       "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -56,8 +74,9 @@
     {
       "name": "CAROL BOHORQUEZ",
       "active": true,
-      "AIC": true,
+      "AIC": false,
       "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -71,32 +90,7 @@
       "active": true,
       "AIC": false,
       "PIJAOS": false,
-      "total_patients": 0,
-      "maxPatients": null,
-      "maxPatientsPercentage": null,
-      "patients": [],
-
-      "maxCali": null,
-      "maxGeneral": null
-    },
-    {
-      "name": "LIZETH ARIZA",
-      "active": true,
-      "AIC": false,
-      "PIJAOS": false,
-      "total_patients": 0,
-      "maxPatients": null,
-      "maxPatientsPercentage": null,
-      "patients": [],
-
-      "maxCali": null,
-      "maxGeneral": null
-    },
-    {
-      "name": "PEDRO PASTRANA",
-      "active": true,
-      "AIC": false,
-      "PIJAOS": false,
+      "NUEVA_EPS": true,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -110,6 +104,35 @@
       "active": true,
       "AIC": false,
       "PIJAOS": false,
+      "NUEVA_EPS": true,
+      "total_patients": 0,
+      "maxPatients": null,
+      "maxPatientsPercentage": null,
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
+    },
+    {
+      "name": "LIZETH ARIZA",
+      "active": false,
+      "AIC": false,
+      "PIJAOS": false,
+      "NUEVA_EPS": false,
+      "total_patients": 0,
+      "maxPatients": null,
+      "maxPatientsPercentage": null,
+      "patients": [],
+
+      "maxCali": null,
+      "maxGeneral": null
+    },
+    {
+      "name": "PEDRO PASTRANA",
+      "active": true,
+      "AIC": false,
+      "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -123,6 +146,7 @@
       "active": true,
       "AIC": false,
       "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -133,9 +157,10 @@
     },
     {
       "name": "MARCELA CUY",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -150,12 +175,13 @@
       "active": true,
       "AIC": false,
       "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
       "patients": [],
       "popayan": true,
-      
+
       "maxCali": null,
       "maxGeneral": null
     },
@@ -164,19 +190,7 @@
       "active": false,
       "AIC": false,
       "PIJAOS": false,
-      "total_patients": 0,
-      "maxPatients": null,
-      "maxPatientsPercentage": null,
-      "patients": [],
-
-      "maxCali": null,
-      "maxGeneral": null
-    },
-    {
-      "name": "PAOLA MARTINEZ",
-      "active": true,
-      "AIC": false,
-      "PIJAOS": false,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,

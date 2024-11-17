@@ -72,6 +72,8 @@ fs.createReadStream(file_name_med)
         patient.Entidad = "PIJAOS";
       } else if (patient.Entidad.toLowerCase().includes("aic")) {
         patient.Entidad = "AIC";
+      } else if (patient.Entidad.toLowerCase().includes("nueva")) {
+        patient.Entidad = "NUEVA EPS";
       }
     });
 
@@ -153,6 +155,27 @@ fs.createReadStream(file_name_med)
 
 
 
+    /*
+    * ****************
+    * Asignamos NUEVA EPS
+    * ****************
+    */
+    let patientNUEVA_EPS = listPatients.filter(
+      (patient) => patient.Entidad == "NUEVA EPS"
+    );
+    let auxNUEVA_EPS = active_doctors.filter((aux) => aux.NUEVA_EPS == true);
+
+    auxNUEVA_EPS.forEach((aux) => {
+      if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+      patientNUEVA_EPS.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
+      });
+    });
 
 
     /*
@@ -211,7 +234,7 @@ fs.createReadStream(file_name_med)
 
 
 
-    
+
     /**
      * ****************
      * Filtrar por CALI
@@ -274,7 +297,7 @@ fs.createReadStream(file_name_med)
         if (
           !(aux.total_patients >= patients_per_doctor) &&
           (totalAsignedCaliPatients < maxCaliPatientsPerAux &&
-          (totalAsignedCaliPatients < aux.maxCali || aux.maxCali === null)) &&
+            (totalAsignedCaliPatients < aux.maxCali || aux.maxCali === null)) &&
           patient.AUXILIAR == ""
         ) {
           patient.AUXILIAR = aux.name.toUpperCase();
