@@ -138,84 +138,19 @@ fs.createReadStream(file_name_med)
      * *************
      */
 
-    let AICPatients = listPatients.filter((patient) => patient.Entidad == "AIC");
+    let patientAIC = listPatients.filter((patient) => patient.Entidad == "AIC");
+    let auxAIC = active_doctors.filter((aux) => aux.AIC == true);
 
-    /**
-     * *************************Maxima para auxiliares con restricción***********************
-     */
-
-    // calcular la cantidad máxima de pacientes de AIC por auxiliar
-    let maxAICPatientsPerAuxBefore = Math.floor(
-      AICPatients.length / active_doctors.length
-    );
-
-
-    let sumMaximumPatientsAIC = 0;
-    let numberPatientsWithRestrictionsAIC = 0;
-    active_doctors.forEach((aux) => {
-      if (aux.maxPatientsPercentage != null) {
-        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxAICPatientsPerAuxBefore) / 100);
-        sumMaximumPatientsAIC += max_Patients;
-        aux.maxAIC = max_Patients;
-        numberPatientsWithRestrictionsAIC++;
-      } else if (aux.maxAIC != null) {
-        sumMaximumPatientsAIC += aux.maxAIC;
-        numberPatientsWithRestrictionsAIC++;
-      }
-    });
-
-    /**
-     * ****************************************************************************************
-     */
-
-
-    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
-    const maxAICPatientsPerAux = Math.floor((AICPatients.length - sumMaximumPatientsAIC) / (active_doctors.length - numberPatientsWithRestrictionsAIC));
-
-
-
-    active_doctors.forEach((aux) => {
-      let totalAsignedAICPatients = 0;
-
+    auxAIC.forEach((aux) => {
       if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
-      AICPatients.forEach((patient) => {
-        if (
-          !(aux.total_patients >= patients_per_doctor) &&
-          (totalAsignedAICPatients < maxAICPatientsPerAux &&
-            (totalAsignedAICPatients < aux.maxAIC || aux.maxAIC === null)) &&
-          patient.AUXILIAR == ""
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          totalAsignedAICPatients++;
-        }
+      patientAIC.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
       });
-      // Eliminar los pacientes asignados de la lista de pacientes de CALI
-      AICPatients = AICPatients.filter((patient) => patient.AUXILIAR == "");
-    });
-
-    let auxIndexAIC = 0;  // Índice para recorrer los auxiliares
-    let totalAuxAIC = active_doctors.length;  // Total de auxiliares
-
-    AICPatients.forEach((patient) => {
-      let assigned = false;
-
-      while (!assigned) {
-        let aux = active_doctors[auxIndexAIC];
-
-        if (aux.total_patients < patients_per_doctor &&
-          (aux.maxPatients === null || aux.total_patients < aux.maxPatients)
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          assigned = true;
-        }
-
-        auxIndexAIC = (auxIndexAIC + 1) % totalAuxAIC;  // Mover al siguiente auxiliar, circularmente
-      }
     });
 
 
@@ -225,86 +160,21 @@ fs.createReadStream(file_name_med)
     * Asignamos NUEVA EPS
     * ****************
     */
-    let NUEVA_EPSPatients = listPatients.filter(
+    let patientNUEVA_EPS = listPatients.filter(
       (patient) => patient.Entidad == "NUEVA EPS"
     );
+    let auxNUEVA_EPS = active_doctors.filter((aux) => aux.NUEVA_EPS == true);
 
-    /**
-     * *************************Maxima para auxiliares con restricción***********************
-     */
-
-    // calcular la cantidad máxima de pacientes de NUEVA_EPS por auxiliar
-    let maxNUEVA_EPSPatientsPerAuxBefore = Math.floor(
-      NUEVA_EPSPatients.length / active_doctors.length
-    );
-
-
-    let sumMaximumPatientsNUEVA_EPS = 0;
-    let numberPatientsWithRestrictionsNUEVA_EPS = 0;
-    active_doctors.forEach((aux) => {
-      if (aux.maxPatientsPercentage != null) {
-        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxNUEVA_EPSPatientsPerAuxBefore) / 100);
-        sumMaximumPatientsNUEVA_EPS += max_Patients;
-        aux.maxNUEVA_EPS = max_Patients;
-        numberPatientsWithRestrictionsNUEVA_EPS++;
-      } else if (aux.maxNUEVA_EPS != null) {
-        sumMaximumPatientsNUEVA_EPS += aux.maxNUEVA_EPS;
-        numberPatientsWithRestrictionsNUEVA_EPS++;
-      }
-    });
-
-    /**
-     * ****************************************************************************************
-     */
-
-
-    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
-    const maxNUEVA_EPSPatientsPerAux = Math.floor((NUEVA_EPSPatients.length - sumMaximumPatientsNUEVA_EPS) / (active_doctors.length - numberPatientsWithRestrictionsNUEVA_EPS));
-
-
-
-    active_doctors.forEach((aux) => {
-      let totalAsignedNUEVA_EPSPatients = 0;
-
+    auxNUEVA_EPS.forEach((aux) => {
       if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
-      NUEVA_EPSPatients.forEach((patient) => {
-        if (
-          !(aux.total_patients >= patients_per_doctor) &&
-          (totalAsignedNUEVA_EPSPatients < maxNUEVA_EPSPatientsPerAux &&
-            (totalAsignedNUEVA_EPSPatients < aux.maxNUEVA_EPS || aux.maxNUEVA_EPS === null)) &&
-          patient.AUXILIAR == ""
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          totalAsignedNUEVA_EPSPatients++;
-        }
+      patientNUEVA_EPS.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
       });
-      // Eliminar los pacientes asignados de la lista de pacientes de CALI
-      NUEVA_EPSPatients = NUEVA_EPSPatients.filter((patient) => patient.AUXILIAR == "");
-    });
-
-    let auxIndexNUEVA_EPS = 0;  // Índice para recorrer los auxiliares
-    let totalAuxNUEVA_EPS = active_doctors.length;  // Total de auxiliares
-
-    NUEVA_EPSPatients.forEach((patient) => {
-      let assigned = false;
-
-      while (!assigned) {
-        let aux = active_doctors[auxIndexNUEVA_EPS];
-
-        if (aux.total_patients < patients_per_doctor &&
-          (aux.maxPatients === null || aux.total_patients < aux.maxPatients)
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          assigned = true;
-        }
-
-        auxIndexNUEVA_EPS = (auxIndexNUEVA_EPS + 1) % totalAuxNUEVA_EPS;  // Mover al siguiente auxiliar, circularmente
-      }
     });
 
 
@@ -313,86 +183,21 @@ fs.createReadStream(file_name_med)
      * Asignamos PIJAOS
      * ****************
      */
-    let PIJAOSPatients = listPatients.filter(
+    let patientPIJAOS = listPatients.filter(
       (patient) => patient.Entidad == "PIJAOS"
     );
+    let auxPIJAOS = active_doctors.filter((aux) => aux.PIJAOS == true);
 
-    /**
-     * *************************Maxima para auxiliares con restricción***********************
-     */
-
-    // calcular la cantidad máxima de pacientes de PIJAOS por auxiliar
-    let maxPIJAOSPatientsPerAuxBefore = Math.floor(
-      PIJAOSPatients.length / active_doctors.length
-    );
-
-
-    let sumMaximumPatientsPIJAOS = 0;
-    let numberPatientsWithRestrictionsPIJAOS = 0;
-    active_doctors.forEach((aux) => {
-      if (aux.maxPatientsPercentage != null) {
-        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxPIJAOSPatientsPerAuxBefore) / 100);
-        sumMaximumPatientsPIJAOS += max_Patients;
-        aux.maxPIJAOS = max_Patients;
-        numberPatientsWithRestrictionsPIJAOS++;
-      } else if (aux.maxPIJAOS != null) {
-        sumMaximumPatientsPIJAOS += aux.maxPIJAOS;
-        numberPatientsWithRestrictionsPIJAOS++;
-      }
-    });
-
-    /**
-     * ****************************************************************************************
-     */
-
-
-    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
-    const maxPIJAOSPatientsPerAux = Math.floor((PIJAOSPatients.length - sumMaximumPatientsPIJAOS) / (active_doctors.length - numberPatientsWithRestrictionsPIJAOS));
-
-
-
-    active_doctors.forEach((aux) => {
-      let totalAsignedPIJAOSPatients = 0;
-
+    auxPIJAOS.forEach((aux) => {
       if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
-      PIJAOSPatients.forEach((patient) => {
-        if (
-          !(aux.total_patients >= patients_per_doctor) &&
-          (totalAsignedPIJAOSPatients < maxPIJAOSPatientsPerAux &&
-            (totalAsignedPIJAOSPatients < aux.maxPIJAOS || aux.maxPIJAOS === null)) &&
-          patient.AUXILIAR == ""
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          totalAsignedPIJAOSPatients++;
-        }
+      patientPIJAOS.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
       });
-      // Eliminar los pacientes asignados de la lista de pacientes de CALI
-      PIJAOSPatients = PIJAOSPatients.filter((patient) => patient.AUXILIAR == "");
-    });
-
-    let auxIndexPIJAOS = 0;  // Índice para recorrer los auxiliares
-    let totalAuxPIJAOS = active_doctors.length;  // Total de auxiliares
-
-    PIJAOSPatients.forEach((patient) => {
-      let assigned = false;
-
-      while (!assigned) {
-        let aux = active_doctors[auxIndexPIJAOS];
-
-        if (aux.total_patients < patients_per_doctor &&
-          (aux.maxPatients === null || aux.total_patients < aux.maxPatients)
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          assigned = true;
-        }
-
-        auxIndexPIJAOS = (auxIndexPIJAOS + 1) % totalAuxPIJAOS;  // Mover al siguiente auxiliar, circularmente
-      }
     });
 
 
@@ -404,96 +209,28 @@ fs.createReadStream(file_name_med)
     * ************************
     */
 
-    let POPAYANPatients = listPatients.filter(
+    let popayanPatients = listPatients.filter(
       (patient) =>
         patient.Sede.toLowerCase().includes("popayan cad") &&
         patient.AUXILIAR == ""
     );
+    let auxPopayan = active_doctors.filter((aux) => aux.popayan == true);
 
-    /**
-     * *************************Maxima para auxiliares con restricción***********************
-     */
-
-    // calcular la cantidad máxima de pacientes de POPAYAN por auxiliar
-    let maxPOPAYANPatientsPerAuxBefore = Math.floor(
-      POPAYANPatients.length / active_doctors.length
-    );
-
-
-    let sumMaximumPatientsPOPAYAN = 0;
-    let numberPatientsWithRestrictionsPOPAYAN = 0;
-    active_doctors.forEach((aux) => {
-      if (aux.maxPatientsPercentage != null) {
-        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxPOPAYANPatientsPerAuxBefore) / 100);
-        sumMaximumPatientsPOPAYAN += max_Patients;
-        aux.maxPOPAYAN = max_Patients;
-        numberPatientsWithRestrictionsPOPAYAN++;
-      } else if (aux.maxPOPAYAN != null) {
-        sumMaximumPatientsPOPAYAN += aux.maxPOPAYAN;
-        numberPatientsWithRestrictionsPOPAYAN++;
-      }
-    });
-
-    /**
-     * ****************************************************************************************
-     */
-
-
-    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
-    const maxPOPAYANPatientsPerAux = Math.floor((POPAYANPatients.length - sumMaximumPatientsPOPAYAN) / (active_doctors.length - numberPatientsWithRestrictionsPOPAYAN));
-
-
-
-    active_doctors.forEach((aux) => {
-      let totalAsignedPOPAYANPatients = 0;
-
+    auxPopayan.forEach((aux) => {
       if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
-      POPAYANPatients.forEach((patient) => {
-        if (
-          !(aux.total_patients >= patients_per_doctor) &&
-          (totalAsignedPOPAYANPatients < maxPOPAYANPatientsPerAux &&
-            (totalAsignedPOPAYANPatients < aux.maxPOPAYAN || aux.maxPOPAYAN === null)) &&
-          patient.AUXILIAR == ""
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          totalAsignedPOPAYANPatients++;
-        }
+      popayanPatients.forEach((patient) => {
+        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
+
+        patient.AUXILIAR = aux.name.toUpperCase();
+        aux.patients.push(patient);
+        aux.total_patients++;
       });
-      // Eliminar los pacientes asignados de la lista de pacientes de CALI
-      POPAYANPatients = POPAYANPatients.filter((patient) => patient.AUXILIAR == "");
     });
-
-    let auxIndexPOPAYAN = 0;  // Índice para recorrer los auxiliares
-    let totalAuxPOPAYAN = active_doctors.length;  // Total de auxiliares
-
-    POPAYANPatients.forEach((patient) => {
-      let assigned = false;
-
-      while (!assigned) {
-        let aux = active_doctors[auxIndexPOPAYAN];
-
-        if (aux.total_patients < patients_per_doctor &&
-          (aux.maxPatients === null || aux.total_patients < aux.maxPatients)
-        ) {
-          patient.AUXILIAR = aux.name.toUpperCase();
-          aux.patients.push(patient);
-          aux.total_patients++;
-          assigned = true;
-        }
-
-        auxIndexPOPAYAN = (auxIndexPOPAYAN + 1) % totalAuxPOPAYAN;  // Mover al siguiente auxiliar, circularmente
-      }
-    });
-
-
-
-
 
     // Ordenamos aleatoriamente los auxiliares activos
     active_doctors = active_doctors.sort(() => Math.random() - 0.5);
+
 
 
 
@@ -537,6 +274,13 @@ fs.createReadStream(file_name_med)
     /**
      * ****************************************************************************************
      */
+
+
+
+    // // calcular la cantidad máxima de pacientes de CALI por auxiliar
+    // const maxCaliPatientsPerAux = Math.floor(
+    //   caliPatients.length / active_doctors.length
+    // );
 
 
     // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
