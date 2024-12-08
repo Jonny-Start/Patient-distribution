@@ -1,5 +1,5 @@
 {
-  "file_name_med": "AGENDA 16 NOV.csv",
+  "file_name_med": "RptAppointmentListAppointment (6).csv",
   "AUX": [
     {
       "name": "ERIKA MALDONADO",
@@ -17,7 +17,7 @@
     },
     {
       "name": "CATHERINE ACERO",
-      "active": true,
+      "active": false,
       "AIC": false,
       "PIJAOS": true,
       "NUEVA_EPS": false,
@@ -30,8 +30,8 @@
       "maxGeneral": null
     },
     {
-      "name": "ALEJANDRA RODRIQUEZ",
-      "active": true,
+      "name": "ALEJANDRA RODRIGUEZ",
+      "active": false,
       "AIC": false,
       "PIJAOS": false,
       "NUEVA_EPS": false,
@@ -46,7 +46,7 @@
     {
       "name": "PAOLA HENAO",
       "active": true,
-      "AIC": true,
+      "AIC": false,
       "PIJAOS": false,
       "NUEVA_EPS": false,
       "total_patients": 0,
@@ -90,7 +90,7 @@
       "active": true,
       "AIC": false,
       "PIJAOS": false,
-      "NUEVA_EPS": true,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -104,7 +104,7 @@
       "active": true,
       "AIC": false,
       "PIJAOS": false,
-      "NUEVA_EPS": true,
+      "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
       "maxPatientsPercentage": null,
@@ -115,7 +115,7 @@
     },
     {
       "name": "LIZETH ARIZA",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
       "NUEVA_EPS": false,
@@ -165,7 +165,7 @@
       "maxPatients": null,
       "maxPatientsPercentage": null,
       "patients": [],
-      "popayan": true,
+      "popayan": false,
 
       "maxCali": null,
       "maxGeneral": null
@@ -180,7 +180,7 @@
       "maxPatients": null,
       "maxPatientsPercentage": null,
       "patients": [],
-      "popayan": true,
+      "popayan": false,
 
       "maxCali": null,
       "maxGeneral": null
