@@ -160,21 +160,87 @@ fs.createReadStream(file_name_med)
     * Asignamos NUEVA EPS
     * ****************
     */
-    let patientNUEVA_EPS = listPatients.filter(
+
+    let NUEVA_EPSPatients = listPatients.filter(
       (patient) => patient.Entidad == "NUEVA EPS"
     );
-    let auxNUEVA_EPS = active_doctors.filter((aux) => aux.NUEVA_EPS == true);
 
-    auxNUEVA_EPS.forEach((aux) => {
+    /**
+     * *************************Maxima para auxiliares con restricción***********************
+     */
+
+    // calcular la cantidad máxima de pacientes de NUEVA_EPS por auxiliar
+    let maxNUEVA_EPSPatientsPerAuxBefore = Math.floor(
+      NUEVA_EPSPatients.length / active_doctors.length
+    );
+
+
+    let sumMaximumPatientsNUEVA_EPS = 0;
+    let numberPatientsWithRestrictionsNUEVA_EPS = 0;
+    active_doctors.forEach((aux) => {
+      if (aux.maxPatientsPercentage != null) {
+        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxNUEVA_EPSPatientsPerAuxBefore) / 100);
+        sumMaximumPatientsNUEVA_EPS += max_Patients;
+        aux.maxNUEVA_EPS = max_Patients;
+        numberPatientsWithRestrictionsNUEVA_EPS++;
+      } else if (aux.maxNUEVA_EPS != null) {
+        sumMaximumPatientsNUEVA_EPS += aux.maxNUEVA_EPS;
+        numberPatientsWithRestrictionsNUEVA_EPS++;
+      }
+    });
+
+    /**
+     * ****************************************************************************************
+     */
+
+
+    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
+    const maxNUEVA_EPSPatientsPerAux = Math.floor((NUEVA_EPSPatients.length - sumMaximumPatientsNUEVA_EPS) / (active_doctors.length - numberPatientsWithRestrictionsNUEVA_EPS));
+
+
+
+    active_doctors.forEach((aux) => {
+      let totalAsignedNUEVA_EPSPatients = 0;
+
       if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
-      patientNUEVA_EPS.forEach((patient) => {
-        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
-
-        patient.AUXILIAR = aux.name.toUpperCase();
-        aux.patients.push(patient);
-        aux.total_patients++;
+      NUEVA_EPSPatients.forEach((patient) => {
+        if (
+          !(aux.total_patients >= patients_per_doctor) &&
+          (totalAsignedNUEVA_EPSPatients < maxNUEVA_EPSPatientsPerAux &&
+            (totalAsignedNUEVA_EPSPatients < aux.maxNUEVA_EPS || aux.maxNUEVA_EPS === null)) &&
+          patient.AUXILIAR == ""
+        ) {
+          patient.AUXILIAR = aux.name.toUpperCase();
+          aux.patients.push(patient);
+          aux.total_patients++;
+          totalAsignedNUEVA_EPSPatients++;
+        }
       });
+      // Eliminar los pacientes asignados de la lista de pacientes de CALI
+      NUEVA_EPSPatients = NUEVA_EPSPatients.filter((patient) => patient.AUXILIAR == "");
+    });
+
+    let auxIndexNUEVA_EPS = 0;  // Índice para recorrer los auxiliares
+    let totalAuxNUEVA_EPS = active_doctors.length;  // Total de auxiliares
+
+    NUEVA_EPSPatients.forEach((patient) => {
+      let assigned = false;
+
+      while (!assigned) {
+        let aux = active_doctors[auxIndexNUEVA_EPS];
+
+        if (aux.total_patients < patients_per_doctor &&
+          (aux.maxPatients === null || aux.total_patients < aux.maxPatients)
+        ) {
+          patient.AUXILIAR = aux.name.toUpperCase();
+          aux.patients.push(patient);
+          aux.total_patients++;
+          assigned = true;
+        }
+
+        auxIndexNUEVA_EPS = (auxIndexNUEVA_EPS + 1) % totalAuxNUEVA_EPS;  // Mover al siguiente auxiliar, circularmente
+      }
     });
 
 
@@ -209,23 +275,88 @@ fs.createReadStream(file_name_med)
     * ************************
     */
 
-    let popayanPatients = listPatients.filter(
+    let POPAYANPatients = listPatients.filter(
       (patient) =>
         patient.Sede.toLowerCase().includes("popayan cad") &&
         patient.AUXILIAR == ""
     );
-    let auxPopayan = active_doctors.filter((aux) => aux.popayan == true);
 
-    auxPopayan.forEach((aux) => {
+    /**
+     * *************************Maxima para auxiliares con restricción***********************
+     */
+
+    // calcular la cantidad máxima de pacientes de POPAYAN por auxiliar
+    let maxPOPAYANPatientsPerAuxBefore = Math.floor(
+      POPAYANPatients.length / active_doctors.length
+    );
+
+
+    let sumMaximumPatientsPOPAYAN = 0;
+    let numberPatientsWithRestrictionsPOPAYAN = 0;
+    active_doctors.forEach((aux) => {
+      if (aux.maxPatientsPercentage != null) {
+        let max_Patients = Math.floor((aux.maxPatientsPercentage * maxPOPAYANPatientsPerAuxBefore) / 100);
+        sumMaximumPatientsPOPAYAN += max_Patients;
+        aux.maxPOPAYAN = max_Patients;
+        numberPatientsWithRestrictionsPOPAYAN++;
+      } else if (aux.maxPOPAYAN != null) {
+        sumMaximumPatientsPOPAYAN += aux.maxPOPAYAN;
+        numberPatientsWithRestrictionsPOPAYAN++;
+      }
+    });
+
+    /**
+     * ****************************************************************************************
+     */
+
+
+    // Cantidad de pacientes por auxiliar después de aplicar el porcentaje y el maximo de pacientes 
+    const maxPOPAYANPatientsPerAux = Math.floor((POPAYANPatients.length - sumMaximumPatientsPOPAYAN) / (active_doctors.length - numberPatientsWithRestrictionsPOPAYAN));
+
+
+
+    active_doctors.forEach((aux) => {
+      let totalAsignedPOPAYANPatients = 0;
+
       if (aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
 
-      popayanPatients.forEach((patient) => {
-        if (patient.AUXILIAR != "" || aux.total_patients >= patients_per_doctor || (aux.total_patients >= aux.maxPatients && Number.isFinite(aux.maxPatients))) return;
-
-        patient.AUXILIAR = aux.name.toUpperCase();
-        aux.patients.push(patient);
-        aux.total_patients++;
+      POPAYANPatients.forEach((patient) => {
+        if (
+          !(aux.total_patients >= patients_per_doctor) &&
+          (totalAsignedPOPAYANPatients < maxPOPAYANPatientsPerAux &&
+            (totalAsignedPOPAYANPatients < aux.maxPOPAYAN || aux.maxPOPAYAN === null)) &&
+          patient.AUXILIAR == ""
+        ) {
+          patient.AUXILIAR = aux.name.toUpperCase();
+          aux.patients.push(patient);
+          aux.total_patients++;
+          totalAsignedPOPAYANPatients++;
+        }
       });
+      // Eliminar los pacientes asignados de la lista de pacientes de CALI
+      POPAYANPatients = POPAYANPatients.filter((patient) => patient.AUXILIAR == "");
+    });
+
+    let auxIndexPOPAYAN = 0;  // Índice para recorrer los auxiliares
+    let totalAuxPOPAYAN = active_doctors.length;  // Total de auxiliares
+
+    POPAYANPatients.forEach((patient) => {
+      let assigned = false;
+
+      while (!assigned) {
+        let aux = active_doctors[auxIndexPOPAYAN];
+
+        if (aux.total_patients < patients_per_doctor &&
+          (aux.maxPatients === null || aux.total_patients < aux.maxPatients)
+        ) {
+          patient.AUXILIAR = aux.name.toUpperCase();
+          aux.patients.push(patient);
+          aux.total_patients++;
+          assigned = true;
+        }
+
+        auxIndexPOPAYAN = (auxIndexPOPAYAN + 1) % totalAuxPOPAYAN;  // Mover al siguiente auxiliar, circularmente
+      }
     });
 
     // Ordenamos aleatoriamente los auxiliares activos

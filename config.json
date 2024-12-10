@@ -1,5 +1,5 @@
 {
-  "file_name_med": ".csv",
+  "file_name_med": "RptAppointmentListAppointment (8).csv",
   "AUX": [
     {
       "name": "ERIKA MALDONADO",
@@ -19,7 +19,7 @@
       "name": "CATHERINE ACERO",
       "active": false,
       "AIC": false,
-      "PIJAOS": true,
+      "PIJAOS": false,
       "NUEVA_EPS": false,
       "total_patients": 0,
       "maxPatients": null,
@@ -31,7 +31,7 @@
     },
     {
       "name": "ALEJANDRA RODRIGUEZ",
-      "active": false,
+      "active": true,
       "AIC": false,
       "PIJAOS": false,
       "NUEVA_EPS": false,
